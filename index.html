@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Homework GitHub Pages</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #0f172a;
+      --panel: rgba(15, 23, 42, 0.78);
+      --text: #e5e7eb;
+      --muted: #94a3b8;
+      --accent: #38bdf8;
+      --accent-strong: #22d3ee;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      min-height: 100vh;
+      margin: 0;
+      display: grid;
+      place-items: center;
+      padding: 32px;
+      font-family: Arial, Helvetica, sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at top left, rgba(34, 211, 238, 0.28), transparent 34rem),
+        radial-gradient(circle at bottom right, rgba(99, 102, 241, 0.26), transparent 28rem),
+        var(--bg);
+    }
+
+    main {
+      width: min(760px, 100%);
+      padding: clamp(28px, 6vw, 56px);
+      border: 1px solid rgba(148, 163, 184, 0.24);
+      border-radius: 28px;
+      background: var(--panel);
+      box-shadow: 0 24px 80px rgba(2, 6, 23, 0.42);
+      backdrop-filter: blur(18px);
+    }
+
+    .badge {
+      display: inline-flex;
+      gap: 8px;
+      align-items: center;
+      padding: 8px 12px;
+      border-radius: 999px;
+      color: #082f49;
+      background: linear-gradient(135deg, var(--accent), var(--accent-strong));
+      font-size: 14px;
+      font-weight: 700;
+    }
+
+    h1 {
+      margin: 24px 0 16px;
+      font-size: clamp(36px, 8vw, 72px);
+      line-height: 0.95;
+      letter-spacing: -0.06em;
+    }
+
+    p {
+      max-width: 58ch;
+      margin: 0;
+      color: var(--muted);
+      font-size: clamp(18px, 2.5vw, 22px);
+      line-height: 1.6;
+    }
+
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 14px;
+      margin-top: 32px;
+    }
+
+    a {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 46px;
+      padding: 0 18px;
+      border-radius: 14px;
+      color: var(--text);
+      text-decoration: none;
+      border: 1px solid rgba(226, 232, 240, 0.18);
+      background: rgba(15, 23, 42, 0.45);
+    }
+
+    a.primary {
+      color: #082f49;
+      border: 0;
+      background: linear-gradient(135deg, var(--accent), var(--accent-strong));
+      font-weight: 700;
+    }
+
+    @media (max-width: 520px) {
+      body {
+        padding: 18px;
+      }
+
+      .actions,
+      a {
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <span class="badge">GitHub Pages ready</span>
+    <h1>Тестовая страница опубликована</h1>
+    <p>
+      Это простая статическая web-страница для репозитория homework.
+      Если GitHub Pages включён для ветки main, она будет доступна как сайт проекта.
+    </p>
+    <div class="actions" aria-label="Полезные ссылки">
+      <a class="primary" href="https://mdanshin.github.io/homework/">Открыть сайт</a>
+      <a href="https://github.com/mdanshin/homework">Репозиторий</a>
+    </div>
+  </main>
+</body>
+</html>

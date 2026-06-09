@@ -416,6 +416,15 @@ h1 {
   border-radius: 28px;
 }
 
+.parent-gate {
+  gap: 16px;
+}
+
+.pin-form {
+  display: grid;
+  gap: 12px;
+}
+
 .result-topline {
   display: flex;
   align-items: center;

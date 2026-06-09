@@ -41,13 +41,60 @@ async function renderReportMode(reportCode) {
   const report = await decodeReportCode(reportCode);
   const assignment = await loadAssignment(report.payload.assignmentId);
   const result = await evaluateAssignment(assignment, report.payload.answers);
+  const settings = await loadSettings();
 
   updateHeader(assignment, "Отчёт");
+  renderReportAccess(assignment, report, result, reportCode, settings);
+}
+
+async function loadSettings() {
+  return loadJson("data/settings.json");
+}
+
+function renderReportAccess(assignment, report, result, reportCode, settings, error = "") {
+  const submittedAt = report.payload.submittedAt
+    ? new Date(report.payload.submittedAt).toLocaleString("ru-RU")
+    : "не указано";
+
+  app.innerHTML = `
+    <section class="report-panel parent-gate">
+      <h2>Родительский доступ</h2>
+      <p>${escapeHtml(assignment.title)}. Отправлено: ${escapeHtml(submittedAt)}.</p>
+      <p>Введите PIN, чтобы открыть оценку, ответы ребёнка и разбор. Без PIN отчёт не показывает результат.</p>
+      <form class="pin-form" data-pin-form>
+        <label>
+          <span class="task-points">PIN родителя</span>
+          <input class="answer-input" name="parentPin" type="password" inputmode="numeric" autocomplete="off" placeholder="Введите PIN" required>
+        </label>
+        ${error ? `<p class="warning">${escapeHtml(error)}</p>` : ""}
+        <button class="button" type="submit">Открыть отчёт</button>
+      </form>
+      <a class="button ghost" href="${escapeAttribute(location.href.split("#")[0])}">Открыть текущее задание</a>
+    </section>
+  `;
+
+  app.querySelector("[data-pin-form]").addEventListener("submit", async (event) => {
+    event.preventDefault();
+    const formData = new FormData(event.currentTarget);
+    const pin = String(formData.get("parentPin") || "").trim();
+    const pinHash = await sha256Hex(`${settings.parentAccess.salt}:${pin}`);
+
+    if (pinHash !== settings.parentAccess.pinHash) {
+      renderReportAccess(assignment, report, result, reportCode, settings, "PIN не подошёл. Проверьте цифры и попробуйте ещё раз.");
+      return;
+    }
+
+    renderVerifiedReport(assignment, report, result, reportCode);
+  });
+}
+
+function renderVerifiedReport(assignment, report, result, reportCode) {
   renderAssignment(assignment, {
     answers: report.payload.answers,
     result,
     reportCode,
     reportView: true,
+    showReview: true,
     reportMeta: {
       checksum: report.checksum,
       checksumValid: report.checksumValid,
@@ -90,12 +137,12 @@ function renderAssignment(assignment, options = {}) {
   const tasks = getAllTasks(assignment);
   const answers = options.answers || {};
   const result = options.result || null;
-  const showReview = Boolean(result && (options.showReview || options.reportView));
+  const showReview = Boolean(result && options.showReview);
   const readonly = Boolean(options.readonly || result);
 
   app.innerHTML = `
     ${renderReportIntro(options, assignment)}
-    ${renderSummary(assignment, result)}
+    ${renderSummary(assignment, showReview ? result : null)}
     <form class="homework-form" data-homework-form>
       <div class="subject-list">
         ${assignment.subjects.map((subject) => renderSubject(subject, answers, result, readonly, showReview)).join("")}
@@ -308,6 +355,27 @@ function renderResultPanel(assignment, result, options, showReview) {
     ? `https://t.me/share/url?url=${encodeURIComponent(reportUrl)}&text=${encodeURIComponent("Результат домашнего задания")}`
     : "";
 
+  if (!showReview) {
+    return `
+      <section class="result-panel" aria-labelledby="result-title">
+        <div class="result-title">
+          <h2 id="result-title">Отчёт готов</h2>
+          <p>Работа проверена и зафиксирована в ссылке. Оценка, баллы и разбор откроются только в родительском отчёте после ввода PIN.</p>
+        </div>
+        ${reportUrl ? `
+          <div class="review-gate">
+            <strong>Отправь отчёт родителю</strong>
+            <p>В Telegram будет отправлена ссылка без открытой оценки. Родитель откроет её на этом сайте и увидит результат после PIN.</p>
+          </div>
+          <div class="button-row report-actions">
+            <button class="button secondary" type="button" data-copy-report data-report-url="${escapeAttribute(reportUrl)}">Скопировать отчёт</button>
+            <a class="button" href="${escapeAttribute(telegramUrl)}" target="_blank" rel="noopener" data-telegram-report>Отправить в Telegram</a>
+          </div>
+        ` : ""}
+      </section>
+    `;
+  }
+
   return `
     <section class="result-panel" aria-labelledby="result-title">
       <div class="result-topline">
@@ -331,19 +399,13 @@ function renderResultPanel(assignment, result, options, showReview) {
         }).join("")}
       </div>
       ${reportUrl ? `
-        <div class="review-gate ${showReview ? "is-open" : ""}">
-          <strong>${showReview ? "Разбор открыт" : "Сначала отправь отчёт родителю"}</strong>
-          <p>
-            ${showReview
-              ? "Теперь ниже показаны правильность ответов и объяснения."
-              : "Ссылка-отчёт содержит ответы ребёнка. После отправки родитель откроет её и сайт сам пересчитает оценку."
-            }
-          </p>
+        <div class="review-gate is-open">
+          <strong>Родительский отчёт открыт</strong>
+          <p>Ниже показаны ответы ребёнка, правильность и объяснения.</p>
         </div>
         <div class="button-row report-actions">
           <button class="button secondary" type="button" data-copy-report data-report-url="${escapeAttribute(reportUrl)}">Скопировать отчёт</button>
           <a class="button" href="${escapeAttribute(telegramUrl)}" target="_blank" rel="noopener" data-telegram-report>Отправить в Telegram</a>
-          ${showReview ? "" : `<button class="button ghost" type="button" data-show-review disabled>Показать разбор</button>`}
         </div>
       ` : ""}
     </section>
@@ -353,38 +415,19 @@ function renderResultPanel(assignment, result, options, showReview) {
 function attachResultActions(assignment, options, result) {
   const copyButton = app.querySelector("[data-copy-report]");
   const telegramLink = app.querySelector("[data-telegram-report]");
-  const reviewButton = app.querySelector("[data-show-review]");
   const reportUrl = copyButton?.dataset.reportUrl || "";
 
-  if (!copyButton && !telegramLink && !reviewButton) {
+  if (!copyButton && !telegramLink) {
     return;
   }
-
-  const enableReview = () => {
-    if (!reviewButton) {
-      return;
-    }
-
-    reviewButton.disabled = false;
-    reviewButton.textContent = "Показать разбор";
-  };
 
   copyButton?.addEventListener("click", async () => {
     const copied = await copyText(reportUrl);
     copyButton.textContent = copied ? "Отчёт скопирован" : "Открой Telegram";
-    enableReview();
   });
 
   telegramLink?.addEventListener("click", () => {
-    enableReview();
-  });
-
-  reviewButton?.addEventListener("click", () => {
-    renderAssignment(assignment, {
-      ...options,
-      result,
-      showReview: true
-    });
+    telegramLink.textContent = "Telegram открыт";
   });
 }
 

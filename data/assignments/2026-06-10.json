@@ -1,0 +1,153 @@
+{
+  "id": "2026-06-10",
+  "title": "Задания на 10 июня",
+  "dateLabel": "10 июня",
+  "level": "6-7 класс",
+  "subjects": [
+    {
+      "id": "math",
+      "title": "Математика",
+      "tasks": [
+        {
+          "id": "math-1",
+          "type": "number",
+          "title": "Сложение дробей",
+          "question": "Вычисли: 3/4 + 5/8.",
+          "instruction": "Ответ запиши в виде неправильной дроби, например 7/5.",
+          "placeholder": "Например: 11/8",
+          "points": 1,
+          "answerHashes": [
+            "cb5a3a1c04192e192470de1e1d841e292a146dc9972c0c719b1d037f8487498a"
+          ],
+          "explanation": "3/4 = 6/8, значит 6/8 + 5/8 = 11/8."
+        },
+        {
+          "id": "math-2",
+          "type": "number",
+          "title": "Линейное уравнение",
+          "question": "Реши уравнение: 5(2x - 3) = 35.",
+          "instruction": "В ответе укажи только значение x.",
+          "placeholder": "x = ...",
+          "points": 1,
+          "answerHashes": [
+            "ef2d127de37b942baad06145e54b0c619a1f22327b2ebbcfbec78f5564afe39d"
+          ],
+          "explanation": "10x - 15 = 35, 10x = 50, значит x = 5."
+        },
+        {
+          "id": "math-3",
+          "type": "number",
+          "title": "Проценты",
+          "question": "В классе 28 учеников. 25% из них занимаются баскетболом. Сколько учеников занимаются баскетболом?",
+          "instruction": "Ответ запиши числом.",
+          "placeholder": "Количество учеников",
+          "points": 1,
+          "answerHashes": [
+            "7902699be42c8a8e46fbbb4501726517e86b22c56a189f7625a6da49081b2451"
+          ],
+          "explanation": "25% = 1/4, а 28 : 4 = 7."
+        }
+      ]
+    },
+    {
+      "id": "russian",
+      "title": "Русский язык",
+      "tasks": [
+        {
+          "id": "russian-1",
+          "type": "text",
+          "title": "Грамматическая основа",
+          "question": "Найди грамматическую основу предложения: «После дождя на небе появилась яркая радуга». ",
+          "instruction": "Запиши подлежащее и сказуемое.",
+          "placeholder": "Например: солнце светит",
+          "points": 1,
+          "answerHashes": [
+            "632b8f12be4a86ec45d8943263adc63bd8f34146971f5daf8beced657b0285dc",
+            "c210ba5e3e3807dc19fcc56d0b18d206dc1e6e7228f081343e56c068f77dbec3"
+          ],
+          "explanation": "Грамматическая основа: радуга появилась."
+        },
+        {
+          "id": "russian-2",
+          "type": "singleChoice",
+          "title": "Приставки пре- и при-",
+          "question": "Какая буква пишется на месте пропуска в слове пр..красный?",
+          "instruction": "Выбери один вариант.",
+          "points": 1,
+          "options": [
+            { "id": "a", "label": "а" },
+            { "id": "e", "label": "е" },
+            { "id": "i", "label": "и" }
+          ],
+          "answerHashes": [
+            "3f79bb7b435b05321651daefd374cdc681dc06faa65e374e38337b88ca046dea"
+          ],
+          "explanation": "Пишется прекрасный: приставка пре- близка по значению к слову очень."
+        },
+        {
+          "id": "russian-3",
+          "type": "text",
+          "title": "Часть речи",
+          "question": "Определи часть речи слова «быстро» в предложении: «Мальчик быстро решил задачу». ",
+          "instruction": "Ответ запиши одним словом.",
+          "placeholder": "Часть речи",
+          "points": 1,
+          "answerHashes": [
+            "391b353f97751f9afcbf6cebe12e2d390c9f13e9b2eb294f6638c8bb90dc2401"
+          ],
+          "explanation": "Слово быстро отвечает на вопрос как? и обозначает признак действия, это наречие."
+        }
+      ]
+    },
+    {
+      "id": "english",
+      "title": "Английский язык",
+      "tasks": [
+        {
+          "id": "english-1",
+          "type": "text",
+          "title": "Past Simple",
+          "question": "Вставь правильную форму глагола: Yesterday I ___ (go) to school.",
+          "instruction": "Ответ запиши одним словом.",
+          "placeholder": "Verb form",
+          "points": 1,
+          "answerHashes": [
+            "bd7e83102fa3e6aa125f3b4c7d6fb561871f02c476cee0ee3fe26c8afe7f3058"
+          ],
+          "explanation": "Past Simple от go — went."
+        },
+        {
+          "id": "english-2",
+          "type": "singleChoice",
+          "title": "There is / There are",
+          "question": "Выбери правильный вариант: There ___ many books on the shelf.",
+          "instruction": "Many books — множественное число.",
+          "points": 1,
+          "options": [
+            { "id": "is", "label": "is" },
+            { "id": "are", "label": "are" },
+            { "id": "was", "label": "was" }
+          ],
+          "answerHashes": [
+            "ba78973ddcf98d4e5369f5e722d681d94f5106895e5d6cf6fa3ca8240fabdc14"
+          ],
+          "explanation": "Books — множественное число, поэтому нужно There are."
+        },
+        {
+          "id": "english-3",
+          "type": "text",
+          "title": "Перевод с must",
+          "question": "Переведи на английский, используя must: «Я должен сделать домашнее задание». ",
+          "instruction": "Пиши короткое предложение без точки в конце.",
+          "placeholder": "I must ...",
+          "points": 1,
+          "answerHashes": [
+            "e98011f726854d4ee2cf9879c331490b367ff113418cc752c50b5469c48b106e",
+            "15fa4eb5b36f2ee6cd2e8345e54ba4edc02a5c03e63692ae87c7fb8cc6b59f0b"
+          ],
+          "explanation": "Подходящий перевод: I must do my homework."
+        }
+      ]
+    }
+  ]
+}

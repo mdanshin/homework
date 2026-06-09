@@ -90,6 +90,7 @@ function renderAssignment(assignment, options = {}) {
   const tasks = getAllTasks(assignment);
   const answers = options.answers || {};
   const result = options.result || null;
+  const showReview = Boolean(result && (options.showReview || options.reportView));
   const readonly = Boolean(options.readonly || result);
 
   app.innerHTML = `
@@ -97,9 +98,9 @@ function renderAssignment(assignment, options = {}) {
     ${renderSummary(assignment, result)}
     <form class="homework-form" data-homework-form>
       <div class="subject-list">
-        ${assignment.subjects.map((subject) => renderSubject(subject, answers, result, readonly)).join("")}
+        ${assignment.subjects.map((subject) => renderSubject(subject, answers, result, readonly, showReview)).join("")}
       </div>
-      ${result ? renderResultPanel(assignment, result, options) : renderActionBar(tasks.length)}
+      ${result ? renderResultPanel(assignment, result, options, showReview) : renderActionBar(tasks.length)}
     </form>
   `;
 
@@ -112,7 +113,7 @@ function renderAssignment(assignment, options = {}) {
     });
   }
 
-  attachResultActions(options);
+  attachResultActions(assignment, options, result);
 }
 
 async function handleSubmit(assignment, form) {
@@ -186,7 +187,7 @@ function renderSummary(assignment, result) {
   `;
 }
 
-function renderSubject(subject, answers, result, readonly) {
+function renderSubject(subject, answers, result, readonly, showReview) {
   const meta = getSubjectMeta(subject.id);
 
   return `
@@ -196,15 +197,15 @@ function renderSubject(subject, answers, result, readonly) {
         <span>${subject.tasks.length} задачи</span>
       </div>
       <div class="task-list">
-        ${subject.tasks.map((task, index) => renderTask(task, subject, meta, index, answers, result, readonly)).join("")}
+        ${subject.tasks.map((task, index) => renderTask(task, meta, index, answers, result, readonly, showReview)).join("")}
       </div>
     </section>
   `;
 }
 
-function renderTask(task, subject, meta, index, answers, result, readonly) {
+function renderTask(task, meta, index, answers, result, readonly, showReview) {
   const answer = answers[task.id] ?? getEmptyAnswer(task);
-  const taskResult = result ? result.taskResults[task.id] : null;
+  const taskResult = result && showReview ? result.taskResults[task.id] : null;
   const stateClass = taskResult ? (taskResult.correct ? "is-correct" : "is-wrong") : "";
 
   return `
@@ -301,7 +302,7 @@ function renderActionBar(taskCount) {
   `;
 }
 
-function renderResultPanel(assignment, result, options) {
+function renderResultPanel(assignment, result, options, showReview) {
   const reportUrl = options.reportCode ? getReportUrl(options.reportCode) : "";
   const telegramUrl = reportUrl
     ? `https://t.me/share/url?url=${encodeURIComponent(reportUrl)}&text=${encodeURIComponent("Результат домашнего задания")}`
@@ -330,30 +331,60 @@ function renderResultPanel(assignment, result, options) {
         }).join("")}
       </div>
       ${reportUrl ? `
-        <label>
-          <span class="task-points">Ссылка-отчёт</span>
-          <textarea class="report-link" readonly data-report-url>${escapeHtml(reportUrl)}</textarea>
-        </label>
-        <div class="button-row">
-          <button class="button secondary" type="button" data-copy-report>Скопировать ссылку</button>
-          <a class="button" href="${escapeAttribute(telegramUrl)}" target="_blank" rel="noopener">Отправить в Telegram</a>
+        <div class="review-gate ${showReview ? "is-open" : ""}">
+          <strong>${showReview ? "Разбор открыт" : "Сначала отправь отчёт родителю"}</strong>
+          <p>
+            ${showReview
+              ? "Теперь ниже показаны правильность ответов и объяснения."
+              : "Ссылка-отчёт содержит ответы ребёнка. После отправки родитель откроет её и сайт сам пересчитает оценку."
+            }
+          </p>
+        </div>
+        <div class="button-row report-actions">
+          <button class="button secondary" type="button" data-copy-report data-report-url="${escapeAttribute(reportUrl)}">Скопировать отчёт</button>
+          <a class="button" href="${escapeAttribute(telegramUrl)}" target="_blank" rel="noopener" data-telegram-report>Отправить в Telegram</a>
+          ${showReview ? "" : `<button class="button ghost" type="button" data-show-review disabled>Показать разбор</button>`}
         </div>
       ` : ""}
     </section>
   `;
 }
 
-function attachResultActions() {
+function attachResultActions(assignment, options, result) {
   const copyButton = app.querySelector("[data-copy-report]");
-  const reportField = app.querySelector("[data-report-url]");
+  const telegramLink = app.querySelector("[data-telegram-report]");
+  const reviewButton = app.querySelector("[data-show-review]");
+  const reportUrl = copyButton?.dataset.reportUrl || "";
 
-  if (!copyButton || !reportField) {
+  if (!copyButton && !telegramLink && !reviewButton) {
     return;
   }
 
-  copyButton.addEventListener("click", async () => {
-    const copied = await copyText(reportField.value);
-    copyButton.textContent = copied ? "Ссылка скопирована" : "Скопируй вручную";
+  const enableReview = () => {
+    if (!reviewButton) {
+      return;
+    }
+
+    reviewButton.disabled = false;
+    reviewButton.textContent = "Показать разбор";
+  };
+
+  copyButton?.addEventListener("click", async () => {
+    const copied = await copyText(reportUrl);
+    copyButton.textContent = copied ? "Отчёт скопирован" : "Открой Telegram";
+    enableReview();
+  });
+
+  telegramLink?.addEventListener("click", () => {
+    enableReview();
+  });
+
+  reviewButton?.addEventListener("click", () => {
+    renderAssignment(assignment, {
+      ...options,
+      result,
+      showReview: true
+    });
   });
 }
 
